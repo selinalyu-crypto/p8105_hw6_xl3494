@@ -50,6 +50,35 @@ hom =
   )
 ```
 
+For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race as predictors.
+
+```{r}
+fit_balt =
+  hom |>
+  filter(city_state == "Baltimore, MD") |>
+  mutate(
+    victim_sex  = fct_relevel(victim_sex, "Female"),
+    victim_race = fct_relevel(victim_race, "White")) |>
+  glm(
+  solved ~ victim_age + victim_sex + victim_race,
+  data = _, family = binomial)
+
+
+fit_balt_tidy =
+  fit_balt |>
+  broom::tidy(conf.int = TRUE) |>
+  mutate(OR = exp(estimate), 
+         lower_ci = exp(conf.low),
+         upper_ci = exp(conf.high)) |>
+  select(term, log_OR = estimate, OR, lower_ci, upper_ci, p.value) |> 
+  knitr::kable(digits = 3)
+
+fit_balt_tidy
+```
+Male victims’ homicide cases are about 57% less likely to be solved than female victims (OR = 0.426), holding age and race constant. We are 95% confident that the true odds ratio lies between 0.324 and 0.558.
+
+
+
 
 
 
